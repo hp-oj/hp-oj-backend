@@ -42,4 +42,4 @@ oss:
     domain: ${oss.aliyun.domain} # 域名
 # 代码沙箱配置
 codesandbox:
-  type: example
+  type: remote

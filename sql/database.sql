@@ -30,7 +30,7 @@ CREATE TABLE `sys_user`
     `username`    varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL     DEFAULT NULL,
     `password`    varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL     DEFAULT NULL,
     `nickname`    varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL     DEFAULT NULL,
-    `role`        varchar(128)                                                           default 'user' not null comment '角色 ''用户|管理员|禁用'' user|admin|ban',
+#     `role`        varchar(128)                                                           default 'user' not null comment '角色 ''用户|管理员|禁用'' user|admin|ban',
     `phone`       varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NULL     DEFAULT NULL,
     `email`       varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL     DEFAULT NULL,
     `create_time` datetime                                                               default CURRENT_TIMESTAMP NULL DEFAULT NULL,
@@ -44,6 +44,31 @@ CREATE TABLE `sys_user`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC;
 
+-- 角色表
+CREATE TABLE `sys_role`
+(
+    `id`          bigint auto_increment NOT NULL COMMENT '主键' primary key,
+    `name`        varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角色名称',
+    `description` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角色描述',
+    `create_time` datetime default CURRENT_TIMESTAMP NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted`     tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除'
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- 用户角色关系表
+CREATE TABLE `sys_user_role`
+(
+    `user_id` bigint NOT NULL COMMENT '用户ID',
+    `role_id` bigint NOT NULL COMMENT '角色ID',
+    PRIMARY KEY (`user_id`, `role_id`)
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC;
+
 -- 题目表
 create table if not exists biz_question
 (
@@ -52,12 +77,11 @@ create table if not exists biz_question
     content      text                               null comment '内容',
     tags         varchar(1024)                      null comment '标签列表（json 数组）',
     answer       text                               null comment '题目答案',
+    score        int      default 0                 not null comment '题目分数',
     submit_num   int      default 0                 not null comment '题目提交数',
     accepted_num int      default 0                 not null comment '题目通过数',
     judge_case   text                               null comment '判题用例（json 数组）',
     judge_config text                               null comment '判题配置（json 对象）',
-    thumb_num    int      default 0                 not null comment '点赞数',
-    favour_num   int      default 0                 not null comment '收藏数',
     user_id      bigint                             not null comment '创建用户 id',
     create_time  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
@@ -81,6 +105,22 @@ create table if not exists biz_question_submit
     index idx_question_id (question_id),
     index idx_user_id (user_id)
 ) comment '题目提交';
+
+-- 用户积分表
+CREATE TABLE `biz_user_score`
+(
+    `user_id` bigint NOT NULL COMMENT '用户ID',
+    `score` int NOT NULL COMMENT '积分值',
+    `reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '积分获取原因 通过答题获得积分',
+    `score_time` datetime default CURRENT_TIMESTAMP NOT NULL COMMENT '积分获取时间',
+    PRIMARY KEY (`user_id`)
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC;
+
+
+
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
